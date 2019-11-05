@@ -7,6 +7,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+source("Q1.R")
 ```
 
 
@@ -15,6 +16,10 @@ knitr::opts_chunk$set(echo = TRUE)
 Consider the data set in the T1-9.dat file, National track records for women. For 55 different countries we have the national records for 7 variables (100, 200, 400, 800, 1500, 3000m and marathon ). Use R to do the following analyses.
 
 a) Describe the 7 variables with mean values, standard deviations e.t.c.
+
+```{r}
+Q1()
+```
 
 b) Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the hist() and density() functions.
 
