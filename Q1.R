@@ -46,6 +46,13 @@ Q1_a <- function () {
     print(gen_sample_var)
 }
 
+fit_normals <- function(y, var_name) {
+    h <- hist(y, breaks = 20, main = paste("Histogram of", var_name))
+    x_normal <- seq(min(y), max(y), length=50)
+    y_normal <- dnorm(x_normal, mean = mean(y), sd = sd(y))
+    y_normal <- y_normal * diff(h$mids[1:2]) * length(y) 
+    lines(x_normal, y_normal, col = "red", lwd = 2)
+} 
 
 Q1_b <- function() {
     
@@ -80,5 +87,11 @@ Q1_b <- function() {
         out_country <- data[ind, 1]
         return(out_country)
     }
+    for (i in c(2:8)) {
+        fit_normals(data[,i], colnames(data)[i])
+    }
 }
+
+
     
+
