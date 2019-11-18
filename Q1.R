@@ -1,12 +1,16 @@
 library(car)
+library(reshape)
+library(ggplot2)
 # Q1
 
 data_path <- "data/T1-9.dat"
-raw_data <- read.table(data_path)
-# removing text data to work easily
-data <- raw_data[, !(names(raw_data) == "V1")]
+data <- read.table(data_path)
+#convert seconds to minutes in the first three cateogories
+data[,2:4] <- data[,2:4]/60
 
 Q1_a <- function () {
+    data <- data[,2:8]
+    
     # Means
     column_means <- colMeans(data)
     
@@ -50,8 +54,6 @@ Q1_b <- function() {
     #assigning names to columns for easier reading
     colnames(data) <- c("country", "100m", "200m", "400m", "800m", "1500m", "3000m", "marathon")
     
-    #convert seconds to minutes in the first three cateogories
-    data[,2:4] <- data[,2:4]/60
     #melted data
     meltdata <- melt(data)
     
@@ -66,5 +68,6 @@ Q1_b <- function() {
         geom_boxplot(aes(fill = variable)) +
         labs(x = "category", y = "Track records (in minutes)")
     plot <- p + facet_wrap(~variable, scales = "free")
+    cat("\n")
     plot
 }
