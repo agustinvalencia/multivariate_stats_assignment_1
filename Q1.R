@@ -1,3 +1,4 @@
+library(car)
 # Q1
 
 data_path <- "data/T1-9.dat"
@@ -44,4 +45,26 @@ Q1_a <- function () {
 
 Q1_b <- function() {
     scatterplotMatrix(data)
+    
+    #Boxplot per race category (Marcos)
+    #assigning names to columns for easier reading
+    colnames(data) <- c("country", "100m", "200m", "400m", "800m", "1500m", "3000m", "marathon")
+    
+    #convert seconds to minutes in the first three cateogories
+    data[,2:4] <- data[,2:4]/60
+    #melted data
+    meltdata <- melt(data)
+    
+    #a)Data description with mean and standard deviation
+    #mean
+    means <- sapply(data[,2:8], mean)
+    #standard deviations
+    sds <- sapply(data[,2:8], sd)
+    
+    #b) Illustrate variables with different graphs
+    p <- ggplot(data = meltdata, aes(x = variable, y = value )) +
+        geom_boxplot(aes(fill = variable)) +
+        labs(x = "category", y = "Track records (in minutes)")
+    plot <- p + facet_wrap(~variable, scales = "free")
+    plot
 }
