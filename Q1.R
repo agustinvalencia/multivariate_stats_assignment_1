@@ -1,10 +1,12 @@
 library(car)
+library(reshape)
+library(ggplot2)
 # Q1
 
 data_path <- "data/T1-9.dat"
 raw_data <- read.table(data_path)
 # removing text data to work easily
-data <- raw_data[, !(names(raw_data) == "V1")]
+data <- raw_data
 
 Q1_a <- function () {
     # Means
@@ -43,7 +45,7 @@ Q1_a <- function () {
 }
 
 
-Q1_b <- function() {
+
     scatterplotMatrix(data)
     
     #Boxplot per race category (Marcos)
@@ -54,17 +56,27 @@ Q1_b <- function() {
     data[,2:4] <- data[,2:4]/60
     #melted data
     meltdata <- melt(data)
-    
-    #a)Data description with mean and standard deviation
-    #mean
-    means <- sapply(data[,2:8], mean)
-    #standard deviations
-    sds <- sapply(data[,2:8], sd)
-    
+
     #b) Illustrate variables with different graphs
     p <- ggplot(data = meltdata, aes(x = variable, y = value )) +
         geom_boxplot(aes(fill = variable)) +
         labs(x = "category", y = "Track records (in minutes)")
-    plot <- p + facet_wrap(~variable, scales = "free")
-    plot
-}
+    boxp <- p + facet_wrap(~variable, scales = "free")
+    
+    
+    #identifying outliets in boxplots for each category:
+    
+    detect.outlier <- function(x) {
+        #note: x should be a column of the data. e.g. data$`100m`
+        p <- boxplot(x)
+        #numeric outliers
+        num_out<- p$out
+        
+        ind <- c()
+        for (i in 1:length(num_out)) {
+            ind[i] <- which(x == num_out[i])
+        }
+        out_country <- data[ind, 1]
+        return(out_country)
+    }
+    
