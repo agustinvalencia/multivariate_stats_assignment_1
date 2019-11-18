@@ -48,11 +48,12 @@ Q1_a <- function () {
 
 
 Q1_b <- function() {
-    scatterplotMatrix(data)
     
     #Boxplot per race category (Marcos)
     #assigning names to columns for easier reading
     colnames(data) <- c("country", "100m", "200m", "400m", "800m", "1500m", "3000m", "marathon")
+    
+    scatterplotMatrix(data[,2:8])
     
     #melted data
     meltdata <- melt(data)
