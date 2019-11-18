@@ -4,9 +4,15 @@ library(ggplot2)
 # Q1
 
 data_path <- "data/T1-9.dat"
+<<<<<<< HEAD
+raw_data <- read.table(data_path)
+# removing text data to work easily
+data <- raw_data
+=======
 data <- read.table(data_path)
 #convert seconds to minutes in the first three cateogories
 data[,2:4] <- data[,2:4]/60
+>>>>>>> 49c726c96ebdc45c93fa246294e66a7d7419a7dd
 
 Q1_a <- function () {
     data <- data[,2:8]
@@ -47,7 +53,12 @@ Q1_a <- function () {
 }
 
 
+<<<<<<< HEAD
+
+    scatterplotMatrix(data)
+=======
 Q1_b <- function() {
+>>>>>>> 49c726c96ebdc45c93fa246294e66a7d7419a7dd
     
     #Boxplot per race category (Marcos)
     #assigning names to columns for easier reading
@@ -62,6 +73,7 @@ Q1_b <- function() {
     p <- ggplot(data = meltdata, aes(x = variable, y = value )) +
         geom_boxplot(aes(fill = variable)) +
         labs(x = "category", y = "Track records (in minutes)")
+<<<<<<< HEAD
     boxp <- p + facet_wrap(~variable, scales = "free")
     
     
@@ -80,5 +92,10 @@ Q1_b <- function() {
         out_country <- data[ind, 1]
         return(out_country)
     }
-}
     
+=======
+    plot <- p + facet_wrap(~variable, scales = "free")
+    cat("\n")
+    plot
+}
+>>>>>>> 49c726c96ebdc45c93fa246294e66a7d7419a7dd
