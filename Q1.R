@@ -14,7 +14,7 @@ Q1_a <- function () {
     # Means
     column_means <- colMeans(data)
     
-    # Variances
+    # Variance - Covariance Matrix
     vars <- var(data)
     
     # Correlations
@@ -80,5 +80,12 @@ Q1_b <- function() {
         out_country <- data[ind, 1]
         return(out_country)
     }
+    
+    
+#     Question 2: Relationships between the variables
+#     a) Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
+    # By analysing the variance covariance matrix, it can be concluded that countries that have a high performance in "shorter" races (100m, 200m and 400m) do not necessarily have high performance in "long distance" races (800m, 1500m, 3000m and marathon). This is coherent to the fact that short and long races require different training and normally the athletes are different in those two categories.
+# b) Generate and study the scatterplots between each pair of variables. Any extreme values?
+#     c) Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 }
     
