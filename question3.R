@@ -66,11 +66,12 @@ SWE_rank_3d
 #In this case, extreme countries normally have poor performance in races, but that is not always the case. For some distances definitions, high performance countries like USA and Great Britain appear as extremes as well. So "extremism" is not a measure of how "slow" a country is, but rather how far from the overall mean the country is. 
 #By ranking the countries in decreasing order of distance, Sweden's position decreases for the different distances defined in questions b), c), and d) respectively. These distances
 
-#Ellipses
-eigens <- eigen(covars)
-a <- sqrt(eigens$values[1])
-b <- sqrt(eigens$values[2])
+library(car)
+#for 100m race
+center <- colMeans(records[,1:2])
+shape1 <- cov(records[,1:2])
+shape2 <- V[1:2,1:2]
+plot(records[,1:2])
+ellipse(center = center, shape = shape1, radius = 1)
+ellipse(center = center, shape = shape2, radius = 1)
 
-x <- data.frame(x = data$`100m`, y = data$`200m`)
-plot(x)
-draw.ellipse(x=x, a=a, b=b)
