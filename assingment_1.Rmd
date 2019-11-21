@@ -145,7 +145,7 @@ kable(cors)
 
 By analysing the variance covariance matrix, it can be concluded that countries that have a high performance in "shorter" races (100m, 200m and 400m) do not necessarily have high performance in "long distance" races (800m, 1500m, 3000m and marathon). This is coherent to the fact that short and long races require different training. Normally, the athletes are different altogether in these different categories.
 
-## b) Generate and study the scatterplots between each pair of variables. Any extreme values?
+## b) Generate and study the scatterplots between each pair of variables. Any extreme values? \textcolor{red}{STILL NEED TO ANSWER THIS QUESTION}
 
 ```{r}
 scatterplotMatrix(data[,2:8])
