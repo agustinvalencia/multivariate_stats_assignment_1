@@ -30,7 +30,7 @@ covars <- cov(records)
 V <- matrix(0, nrow = ncol(records), ncol = ncol(records))
 diag(V) <- diag(covars)
 #compute distance
-dist3c <- (centered %*% solve(V) %*% t(centered))^(1/2)
+dist3c <- (centered %*% solve(V) %*% t(centered))
 
 #diagonal
 diag3c <- sort(diag(dist3c), decreasing = TRUE, index.return = TRUE)
@@ -44,7 +44,7 @@ SWE_rank_3c <- which(extremes3c$ix == SWE_ind)
 
 
 #QUESTION 3d -----------------
-dist3d <- (centered %*% solve(covars) %*% t(centered))^(1/2) 
+dist3d <- (centered %*% solve(covars) %*% t(centered))
 #diagonal
 diag3d <- sort(diag(dist3d), decreasing = TRUE, index.return = TRUE)
 #extreme values (top 5)

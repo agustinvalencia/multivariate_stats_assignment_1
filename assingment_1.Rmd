@@ -9,41 +9,125 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 library(car)
 library(RMaCzek)
-source("Q1.R")
+library(knitr)
+library(reshape)
+library(ggplot2)
 ```
 
 
 # Question 1: Describing individual variables
 
-Consider the data set in the T1-9.dat file, National track records for women. For 55 different countries we have the national records for 7 variables (100, 200, 400, 800, 1500, 3000m and marathon ). Use R to do the following analyses.
+Consider the data set in the T1-9.dat file, National track records for women. For 55 different countries we have the national records for 7 variables (100, 200, 400, 800, 1500, 3000m and marathon). Use R to do the following analyses.
+
+```{r, include = FALSE}
+data_path <- "data/T1-9.dat"
+data <- read.table(data_path)
+colnames(data) <- c("country", "100m", "200m", "400m", "800m", "1500m", "3000m", "marathon")
+data <- data[,2:8]
+```
+
 
 ## a) Describe the 7 variables with mean values, standard deviations e.t.c.
 
-```{r}
-Q1_a()
+```{r, echo = FALSE}
+    # Means
+    column_means <- colMeans(data)
+    
+    # Variance - Covariance Matrix
+    vars <- var(data)
+    
+    # Correlations
+    cors <- cor(data)
+    
+    # Total sample variance
+    total_sample_var <- sum(diag(vars))
+    
+    # Generalized sample variance
+    gen_sample_var <- det(vars)
 ```
 
 ## b) Illustrate the variables with different graphs (explore what plotting possibilities R has). Make sure that the graphs look attractive (it is absolutely necessary to look at the labels, font sizes, point types). Are there any apparent extreme values? Do the variables seem normally distributed? Plot the best fitting (match the mean and standard deviation, i.e. method of moments) Gaussian density curve on the data’s histogram. For the last part you may be interested in the hist() and density() functions.
 
-```{r, fig.align='center'}
-Q1_b()
+```{r, echo = FALSE, fig.align = 'center'}
+#Boxplot per race category
+    #melted data
+    data <- read.table(data_path)
+    colnames(data) <- c("country", "100m", "200m", "400m", "800m", "1500m", "3000m", "marathon")
+    meltdata <- melt(data)
+    p <- ggplot(data = meltdata, aes(x = variable, y = value )) +
+        geom_boxplot(aes(fill = variable)) +
+        labs(x = "category", y = "Track records (in minutes)")
+    boxp <- p + facet_wrap(~variable, scales = "free")
+    boxp
 ```
 
 
+```{r, include = FALSE}
+#identifying outliets in boxplots for each category:
+    
+    detect.outlier <- function(x) {
+        #note: x should be a column of the data. e.g. data$`100m`
+        p <- boxplot(x)
+        #numeric outliers
+        num_out<- p$out
+        
+        ind <- c()
+        for (i in 1:length(num_out)) {
+            ind[i] <- which(x == num_out[i])
+        }
+        out_country <- data[ind, 1]
+        return(out_country)
+    }
+    
+    detect.outlier(data$`100m`)
+    detect.outlier(data$`200m`)
+    detect.outlier(data$`400m`)
+    detect.outlier(data$`800m`)
+    detect.outlier(data$`1500m`)
+    detect.outlier(data$`3000m`)
+    detect.outlier(data$marathon)
+```
 
 
+```{r, echo = FALSE, fig.align = 'center'}
+fit_normals <- function(y, var_name) {
+    h <- hist(y, breaks = 20, main = paste("Histogram of", var_name))
+    x_normal <- seq(min(y), max(y), length=50)
+    y_normal <- dnorm(x_normal, mean = mean(y), sd = sd(y))
+    y_normal <- y_normal * diff(h$mids[1:2]) * length(y) 
+    lines(x_normal, y_normal, col = "red", lwd = 2)
+} 
+    
+    for (i in c(2:8)) {
+        fit_normals(data[,i], colnames(data)[i])
+    }
 
+```
 
-
-
+The first categories (100m, 200m and 400m) seem normally distributed by looking at the histograms. The longer races are have more skewed to the right histograms.
 
 # Question 2: Relationships between the variables
 
 ## a) Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
 
+Covariance Matrix:
+```{r, echo = FALSE}
+kable(vars)
+```
+
+Correlation Matrix: 
+```{r, echo = FALSE}
+kable(cors)
+```
+
 By analysing the variance covariance matrix, it can be concluded that countries that have a high performance in "shorter" races (100m, 200m and 400m) do not necessarily have high performance in "long distance" races (800m, 1500m, 3000m and marathon). This is coherent to the fact that short and long races require different training. Normally, the athletes are different altogether in these different categories.
 
 ## b) Generate and study the scatterplots between each pair of variables. Any extreme values?
+
+```{r}
+scatterplotMatrix(data[,2:8])
+```
+
 
 ## c) Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 
@@ -102,7 +186,7 @@ paste("Sweden's distance rank: ", SWE_rank_euclid)
 ```
 
 ## c) The different variables have different scales so it is possible that the distances can be dominated by some few variables. To avoid this we can use the squared distance, **INSERT LATEX FORMULA HERE** where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
-## It is simple to compute this measure by standardizing the raw data with both means (cen- tring) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
+## It is simple to compute this measure by standardizing the raw data with both means (centering) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
 
 ```{r}
 #diagonal of variance covariance matrix
@@ -127,6 +211,8 @@ extreme_countries3c
 paste("Sweden's distance rank: ", SWE_rank_3c)
 ```
 
+The euclidean distance for normalized data results in a different country list for most extreme ones, altough some countries are in both lists, but not necessarily in the same positions: Samoa (SAM), Cook Islands (COK) and Papua-New Guinea (PNG). This second set of extremes is more consistent because the for the first three race categories (100m, 200m and 400m), time is measured in seconds while the others (800m, 1500m, 3000m and marathon) are measured in minutes.
+
 ## d) The most common statistical distance is the Mahalanobis distance, **INSERT LATEX FORMULA HERE** where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
 
 ```{r}
@@ -145,13 +231,15 @@ print("Top 5 distance extreme countries:")
 extreme_countries3d
 paste("Sweden's distance rank: ", SWE_rank_3d)
 ```
+The most extreme countries given by the Mahalanobis distance are: Samoa (SAM), Papua New Guinea (PNG), North Korea (KORN), Cook Islands (COK) and Mexico (MEX).
 
 ## e) Compare the results in b)–d). Some of the countries are in the upper end with all the measures and perhaps they can be classified as extreme. Discuss this. But also notice the different measures give rather different results (how does Sweden behave?). Summarize this graphically. Produce Czekanowski’s diagram using e.g. the RMaCzek package. In case of problems please describe them.
 
-In this case, extreme countries normally have poor performance in races, but that is not always the case. For some distances definitions, high performance countries like USA and Great Britain appear as extremes as well. So "extremism" is not a measure of how "slow" a country is, but rather how far from the overall mean the country is. 
+In this case, extreme countries normally have poor performance in races, but that is not always the case. For some distances definitions, high performance countries like USA and Great Britain appear as extremes as well. So "extremism" is not a measure of how "slow" a country is, but rather how far from the overall mean the country is. Graphically, this means that the region of equal euclidean distance (a hypersphere) gets distorted to regions of equal statistical distance (hyperellipsoids) with different statistical weights applied: the marginal variances in c) and variance-covariances in d).
 
-By ranking the countries in decreasing order of distance, Sweden's position in the distance rank decreases for the different distances defined in questions b), c), and d) respectively.
+By ranking the countries in decreasing order of distance, Sweden's lowers in  position in the rank for the different distances definitions in questions b), c), and d) respectively (48th, 50th and 54th place). It is possible to conclude that Sweden's records are more consistent throught all race categories, since it is positioned in the bottom positions of all ranks.
 
+The Czekanowski's diagram is showed below:
 ```{r}
 df = data.matrix(data)
 rownames(df) = data[,1]
