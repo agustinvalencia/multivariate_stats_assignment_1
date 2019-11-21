@@ -38,9 +38,11 @@ Q1_b()
 
 # Question 2: Relationships between the variables
 
-a) Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
+## a) Compute the covariance and correlation matrices for the 7 variables. Is there any apparent structure in them? Save these matrices for future use.
 
-b) Generate and study the scatterplots between each pair of variables. Any extreme values?
+By analysing the variance covariance matrix, it can be concluded that countries that have a high performance in "shorter" races (100m, 200m and 400m) do not necessarily have high performance in "long distance" races (800m, 1500m, 3000m and marathon). This is coherent to the fact that short and long races require different training. Normally, the athletes are different altogether in these different categories.
+
+## b) Generate and study the scatterplots between each pair of variables. Any extreme values?
 
 c) Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 
@@ -56,7 +58,6 @@ c) Explore what other plotting possibilities R offers for multivariate data. Pre
 # Question 3: Examining for extreme values
 
 a) Look at the plots (esp. scatterplots) generated in the previous question. Which 3–4 countries appear most extreme? Why do you consider them extreme?
-One approach to measuring “extremism” is to look at the distance (needs to be defined!) between an observation and the sample mean vector, i.e. we look how far one is from the average. Such a distance can be called an multivariate residual for the given observation.
 
 b) The most common residual is the Euclidean distance between the observation and sample mean vector, i.e.
 
@@ -69,6 +70,73 @@ $$d_{L^r}(\overrightarrow{x} , \overline{x}) = \left( \sum_{i=1}^{p}{\lvert\over
 where p is the dimension of the observation (here p = 7).
 
 Compute the squared Euclidean distance (i.e. r = 2) of the observation from the sample mean for all 55 countries using R’s matrix operations. First center the raw data by the means to get $(\overrightarrow{x} - \overline{x})$ for each country. Then do a calculation with matrices that will result in a matrix that has on its diagonal the requested squared distance for each country. Copy this diagonal to a vector and report on the five most extreme countries. In this questions you MAY NOT use any loops.
+
+```{r}
+#euclidean distance
+records <- as.matrix(data[,2:8])
+
+#center the data
+#deviation matrix
+centered <- scale(x = records, center = TRUE, scale = FALSE)
+
+euclid_dist <- sqrt((centered) %*% t(centered))
+
+#diagonal
+euclid_diag <- sort(diag(euclid_dist), decreasing = TRUE, index.return = TRUE)
+#extreme values (top 5)
+euclid_extremes <- head(euclid_diag, n = 5)
+#extract extreme countries
+ind <- head(euclid_extremes$ix, 5)
+euclid_extreme_countries <- data[ind,1]
+#Sweden's index
+SWE_ind <- which(data[,1] == "SWE")
+#Sweden's Position
+SWE_rank_euclid <- which(euclid_extremes$ix == SWE_ind)
+```
+
+The different variables have different scales so it is possible that the distances can be domi- nated by some few variables. To avoid this we can use the squared distance,
+
+where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
+It is simple to compute this measure by standardizing the raw data with both means (cen- tring) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
+
+```{r}
+#diagonal of variance covariance matrix
+covars <- cov(records)
+V <- matrix(0, nrow = ncol(records), ncol = ncol(records))
+diag(V) <- diag(covars)
+#compute distance
+dist3c <- (centered %*% solve(V) %*% t(centered))^(1/2)
+
+#diagonal
+diag3c <- sort(diag(dist3c), decreasing = TRUE, index.return = TRUE)
+#extreme values (top 5)
+extremes3c <- head(diag3c, n = 5)
+#extract extreme countries
+ind3c<- head(extremes3c$ix, 5)
+extreme_countries3c <- data[ind3c,1]
+#Sweden's Position
+SWE_rank_3c <- which(extremes3c$ix == SWE_ind)
+```
+
+The most common statistical distance is the Mahalanobis distance,
+
+where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
+
+```{r}
+dist3d <- (centered %*% solve(covars) %*% t(centered))^(1/2) 
+#diagonal
+diag3d <- sort(diag(dist3d), decreasing = TRUE, index.return = TRUE)
+#extreme values (top 5)
+extremes3d <- head(diag3d, n = 5)
+#extract extreme countries
+ind3d<- head(extremes3d$ix, 5)
+extreme_countries3d <- data[ind3d,1]
+#Sweden's Position
+SWE_rank_3d <- which(extremes3d$ix == SWE_ind)
+```
+
+Compare the results in b)–d). Some of the countries are in the upper end with all the measures and perhaps they can be classified as extreme. Discuss this. But also notice the different measures give rather different results (how does Sweden behave?). Summarize this graphically. Produce Czekanowski’s diagram using e.g. the RMaCzek package. In case of problems please describe them.
+
 
 
 
