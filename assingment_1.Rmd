@@ -7,7 +7,7 @@ author: |
   | Joris van Doorn - jorva845
   | Marcos F Mourao - marfr825
 
-date: "11/5/2019"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output: pdf_document
 ---
 
@@ -145,20 +145,80 @@ kable(cors)
 
 By analysing the variance covariance matrix, it can be concluded that countries that have a high performance in "shorter" races (100m, 200m and 400m) do not necessarily have high performance in "long distance" races (800m, 1500m, 3000m and marathon). This is coherent to the fact that short and long races require different training. Normally, the athletes are different altogether in these different categories.
 
-## b) Generate and study the scatterplots between each pair of variables. Any extreme values? \textcolor{red}{STILL NEED TO ANSWER THIS QUESTION}
+## b) Generate and study the scatterplots between each pair of variables. Any extreme values? \textcolor{red}{STILL NEED TO ANSWER THIS QUESTION}-
 
 ```{r}
 scatterplotMatrix(data[,2:8])
 ```
 
+The closer two distances are two each other, the more clustered the distribution of track records. Which makes intuitive sense, because if a country has no great runners on the 100m, then it is like that they also don't have great athletes on the 200m (and visa versa) because those are often the same people. The further apart two distances are, for example the 100m and the marathon, the more uniformly the distribution of track records is. The reversed logic applies here, because a country can have great sprinters, but no long-distance runne. These events are less dependent on each other because they require specific training.
 
 ## c) Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 
-\textcolor{red}{STILL NEED TO ANSWER THIS QUESTION}
+```{r}
+barplot(t(data[,2:8]), main="Total time on all distances",
+        xlab="Country", col=c("brown","red3", "orange3", "yellow3", "green3", "blue3", "purple"), names.arg = t(data[,1]),
+        legend = rownames(t(data[,1])))
+```
 
 
+```{r}
+pace <- as.matrix(data[,2:8])
+pace <- as.numeric(pace)
+distance <- rep(NA, 378)
 
+for(i in 1:54){
+  pace[i] <- pace[i] * 10
+  distance[i] <- "1: 100m"
+}
+for(i in 55:108){
+  pace[i] <- pace[i] * 5
+  distance[i] <- "2: 200m"
+}
+for(i in 109:162){
+  pace[i] <- pace[i] * 2.5
+  distance[i] <- "3: 400m"
+}
+for(i in 163:216){
+  minutes <- floor(pace[i])
+  min_to_sec <- 60 * minutes
+  sec <- (pace[i] - minutes) * 100
+  pace[i] <- (sec + min_to_sec) * 1.25
+  distance[i] <- "4: 800m"
+}
+for(i in 217:270){
+  minutes <- floor(pace[i])
+  min_to_sec <- 60 * minutes
+  sec <- (pace[i] - minutes) * 100
+  pace[i] <- (sec + min_to_sec) * (2/3)
+  distance[i] <- "5: 1500m"
+}
+for(i in 271:324){
+  minutes <- floor(pace[i])
+  min_to_sec <- 60 * minutes
+  sec <- (pace[i] - minutes) * 100
+  pace[i] <- (sec + min_to_sec) / 3
+  distance[i] <- "6: 3000m"
+}
+for(i in 325:378){
+  minutes <- floor(pace[i])
+  min_to_sec <- 60 * minutes
+  sec <- (pace[i] - minutes) * 100
+  pace[i] <- (sec + min_to_sec) / 42.195
+  distance[i] <- "7: Marathon"
+}
+speed <- cbind(pace, distance)
 
+speed <- as.data.frame(speed)
+speed$pace <- as.numeric(speed$pace)
+
+ggplot(speed, 
+       aes(x = distance, 
+           y = pace)) +
+  geom_point() + ggtitle("Pace per distance in seconds per km") +
+  xlab("Distance") + ylab("Seconds per Km")
+
+```
 
 
 
