@@ -147,22 +147,22 @@ By analysing the variance covariance matrix, it can be concluded that countries 
 
 ## b) Generate and study the scatterplots between each pair of variables. Any extreme values?
 
-```{r}
+```{r, echo = FALSE}
 scatterplotMatrix(data[,2:8])
 ```
 
-The closer two distances are two each other, the more clustered the distribution of track records. Which makes intuitive sense, because if a country has no great runners on the 100m, then it is like that they also don't have great athletes on the 200m (and visa versa) because those are often the same people. The further apart two distances are, for example the 100m and the marathon, the more uniformly the distribution of track records is. The reversed logic applies here, because a country can have great sprinters, but no long-distance runne. These events are less dependent on each other because they require specific training.
+The closer two distances are two each other, the more clustered the distribution of track records. Which makes intuitive sense, because if a country has no great runners on the 100m, then it is like that they also don't have great athletes on the 200m (and visa versa) because those are often the same people. The further apart two distances are, for example the 100m and the marathon, the more uniformly the distribution of track records is. The reversed logic applies here, because a country can have great sprinters, but no long-distance runners. These events are less dependent on each other because they require specific training.
 
 ## c) Explore what other plotting possibilities R offers for multivariate data. Present other (at least two) graphs that you find interesting with respect to this data set.
 
-```{r}
+```{r, echo = FALSE}
 barplot(t(data[,2:8]), main="Total time on all distances",
         xlab="Country", col=c("brown","red3", "orange3", "yellow3", "green3", "blue3", "purple"), names.arg = t(data[,1]),
         legend = rownames(t(data[,1])))
 ```
 
 
-```{r}
+```{r, echo = FALSE}
 pace <- as.matrix(data[,2:8])
 pace <- as.numeric(pace)
 distance <- rep(NA, 378)
@@ -266,7 +266,7 @@ records <- as.matrix(data[,2:8])
 
 #center the data
 #deviation matrix
-centered <- scale(x = records, center = TRUE, scale = FALSE)
+centered <- abs(scale(x = records, center = TRUE, scale = FALSE))
 
 euclid_dist <- sqrt((centered) %*% t(centered))
 
@@ -289,7 +289,9 @@ paste("Sweden's distance rank: ", SWE_rank_euclid)
 
 ## c) The different variables have different scales so it is possible that the distances can be dominated by some few variables. To avoid this we can use the squared distance,
 $$d_{\bf{V}}^{2}(\overrightarrow{x} , \overline{x}) = (\overrightarrow{x} - \overline{x})^T \bf{V}^{-1} (\overrightarrow{x} - \overline{x}),$$
-##where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
+
+## where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
+
 ## It is simple to compute this measure by standardizing the raw data with both means (centering) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
 
 ```{r, echo = FALSE}
@@ -298,7 +300,7 @@ covars <- cov(records)
 V <- matrix(0, nrow = ncol(records), ncol = ncol(records))
 diag(V) <- diag(covars)
 #compute distance
-dist3c <- (centered %*% solve(V) %*% t(centered))^(1/2)
+dist3c <- abs((centered %*% solve(V) %*% t(centered)))^(1/2)
 
 #diagonal
 diag3c <- sort(diag(dist3c), decreasing = TRUE, index.return = TRUE)
@@ -319,10 +321,11 @@ The euclidean distance for normalized data results in a different country list f
 
 ## d) The most common statistical distance is the Mahalanobis distance, 
 $$d_{\textrm{M}}^{2}(\overrightarrow{x} , \overline{x}) = (\overrightarrow{x} - \overline{x})^T \bf{C}^{-1} (\overrightarrow{x} - \overline{x}),$$
-##where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
+
+## where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
 
 ```{r, echo = FALSE}
-dist3d <- (centered %*% solve(covars) %*% t(centered))^(1/2) 
+dist3d <- abs((centered %*% solve(covars) %*% t(centered)))^(1/2) 
 #diagonal
 diag3d <- sort(diag(dist3d), decreasing = TRUE, index.return = TRUE)
 #extreme values (top 5)
@@ -343,21 +346,7 @@ The most extreme countries given by the Mahalanobis distance are: Samoa (SAM), P
 
 In this case, extreme countries normally have poor performance in races, but that is not always the case. For some distances definitions, high performance countries like USA and Great Britain appear as extremes as well. So "extremism" is not a measure of how "slow" a country is, but rather how far from the overall mean the country is. Graphically, this means that the region of equal euclidean distance (a hypersphere) gets distorted to regions of equal statistical distance (hyperellipsoids) with different statistical weights applied: the marginal variances in c) and variance-covariances in d).
 
-By ranking the countries in decreasing order of distance, Sweden's lowers in  position in the rank for the different distances definitions in questions b), c), and d) respectively (48th, 50th and 54th place). It is possible to conclude that Sweden's records are more consistent throught all race categories, since it is positioned in the bottom positions of all ranks. 
-
-\textcolor{red}{I AM NOT SURE ABOUT THIS, PLEASE SOMEONE CHECK THESE ELLIPSES. IDK HOW TO PICK SHAPE AND RADIUS PARAMETERS.}
-
-```{r}
-library(car)
-#for 100m race
-center <- colMeans(records[,1:2])
-shape1 <- cov(records[,1:2])
-shape2 <- V[1:2,1:2]
-plot(records[,1:2])
-ellipse(center = center, shape = shape1, radius = 1)
-ellipse(center = center, shape = shape2, radius = 1)
-```
-
+By ranking the countries in decreasing order of distance, Sweden's lowers in  position in the rank for the different distances definitions in questions b), c), and d) respectively (48th, 50th and 54th place). It is possible to conclude that Sweden's records are more consistent throught all race categories i.e. a lower variance, since it is positioned in the bottom positions of all ranks. 
 
 The Czekanowski's diagram is showed below:
 
