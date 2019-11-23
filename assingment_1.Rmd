@@ -6,9 +6,10 @@ author: |
   | Bayu Brahmantio  - baybr878
   | Joris van Doorn - jorva845
   | Marcos F Mourao - marfr825
-
 date: "11/5/2019"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -18,6 +19,7 @@ library(RMaCzek)
 library(knitr)
 library(reshape)
 library(ggplot2)
+library(MVA)
 ```
 
 
@@ -169,7 +171,23 @@ scatterplotMatrix(data[,2:8])
 
 ## a) Look at the plots (esp. scatterplots) generated in the previous question. Which 3–4 countries appear most extreme? Why do you consider them extreme?
 
-\textcolor{red}{STILL NEED TO ANSWER THIS QUESTION}
+As we can see from the scatterplots in 2b, there are some points that stand out in each bivariate plot. If we take a closer look at few plots of variable pairs:   
+```{r, echo = FALSE}
+data <- read.table(data_path)
+bivariate_boxplot = function(data, vars){
+  x = data[, vars]
+  bvbox(x, cex = 0.01, xlab = colnames(data)[vars[1]], ylab = colnames(data)[vars[2]])
+  with(x, text(x[,1], x[,2], cex = 1, labels = as.character(data[,1])))
+}
+
+attach(data)
+par(mfrow=c(1,3))
+bivariate_boxplot(data, c(2,3))
+bivariate_boxplot(data, c(4,5))
+bivariate_boxplot(data, c(7,8))
+```
+
+we can see that some countries are consistently located out of the "fence" such as `PNG`, `COK`, `SAM`, and `KORN`.
 
 ## b) The most common residual is the Euclidean distance between the observation and sample mean vector, i.e.
 
@@ -210,7 +228,9 @@ euclid_extreme_countries
 paste("Sweden's distance rank: ", SWE_rank_euclid)
 ```
 
-## c) The different variables have different scales so it is possible that the distances can be dominated by some few variables. To avoid this we can use the squared distance, \textcolor{red}{**INSERT LATEX FORMULA HERE**} where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
+## c) The different variables have different scales so it is possible that the distances can be dominated by some few variables. To avoid this we can use the squared distance,
+$$d_{\bf{V}}^{2}(\overrightarrow{x} , \overline{x}) = (\overrightarrow{x} - \overline{x})^T \bf{V}^{-1} (\overrightarrow{x} - \overline{x}),$$
+##where V is a diagonal matrix with variances of the appropriate variables on the diagonal. The effect, is that for each variable the squared distance is divided by its variance and we have a scaled independent distance.
 ## It is simple to compute this measure by standardizing the raw data with both means (centering) and standard deviations (scaling), and then compute the Euclidean distance for the normalized data. Carry out these computations and conclude which countries are the most extreme ones. How do your conclusions compare with the unnormalized ones?
 
 ```{r, echo = FALSE}
@@ -238,7 +258,9 @@ paste("Sweden's distance rank: ", SWE_rank_3c)
 
 The euclidean distance for normalized data results in a different country list for most extreme ones, altough some countries are in both lists, but not necessarily in the same positions: Samoa (SAM), Cook Islands (COK) and Papua-New Guinea (PNG). This second set of extremes is more consistent because the for the first three race categories (100m, 200m and 400m), time is measured in seconds while the others (800m, 1500m, 3000m and marathon) are measured in minutes.
 
-## d) The most common statistical distance is the Mahalanobis distance, \textcolor{red}{**INSERT LATEX FORMULA HERE**} where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
+## d) The most common statistical distance is the Mahalanobis distance, 
+$$d_{\textrm{M}}^{2}(\overrightarrow{x} , \overline{x}) = (\overrightarrow{x} - \overline{x})^T \bf{C}^{-1} (\overrightarrow{x} - \overline{x}),$$
+##where C is the sample covariance matrix calculated from the data. With this measure we also use the relationships (covariances) between the variables (and not only the marginal variances as dV(·, ·) does). Compute the Mahalanobis distance, which countries are most extreme now?
 
 ```{r, echo = FALSE}
 dist3d <- (centered %*% solve(covars) %*% t(centered))^(1/2) 
